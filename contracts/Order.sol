@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./interface/IUser.sol";
 
+error Error_ShouldInitialized();
 error Error_OrderAlreadyExists();
 error Error_OrderNotExists();
 error Error_OrderAlreadyPayed();
@@ -38,6 +39,8 @@ contract Order is Ownable {
         string endPosition;
     }
 
+    bool private isInitialized;
+
     /// @dev 用户的所有order
     /// orderId => OrderEntity
     mapping (uint256 => OrderEntity) orders;
@@ -64,10 +67,22 @@ contract Order is Ownable {
     /// @param order 用户信息
     event OrderPayed(uint256 indexed orderID, OrderEntity order);
 
-    constructor(address _user) {
-        user = IUser(_user);
+    modifier shouldInitialize {
+        if (!isInitialized) {
+            revert Error_ShouldInitialized();
+        }
+        _;
+    }
+
+    constructor() {
         // id从1 开始
         currentID.increment();
+    }
+
+    // 初始化
+    function Initialize(address _user) onlyOwner external {
+        isInitialized = true;
+        user = IUser(_user);
     }
 
     // create order
@@ -82,7 +97,7 @@ contract Order is Ownable {
         uint256 _uniteCount,
         bool _isPayed,
         string calldata _startPosition,
-        string calldata _endPosition) onlyOwner external  {
+        string calldata _endPosition) onlyOwner shouldInitialize external  {
 
         if (orders[_orderID].id > 0) {
             revert Error_OrderAlreadyExists();
@@ -127,7 +142,7 @@ contract Order is Ownable {
         uint256 _uniteCount,
         bool _isPayed,
         string calldata _startPosition,
-        string calldata _endPosition) onlyOwner external  {
+        string calldata _endPosition) onlyOwner shouldInitialize external  {
         
         // 存在才能更新，不存在就报错
         if (orders[_orderID].id == 0) {
@@ -155,7 +170,7 @@ contract Order is Ownable {
     }
 
     // pay order
-    function PayOrder(uint256 _orderID, uint256 _userID) onlyOwner external  {
+    function PayOrder(uint256 _orderID, uint256 _userID) onlyOwner shouldInitialize external  {
         // order should exists
         // 存在才能更新，不存在就报错
         OrderEntity memory _order = orders[_orderID];

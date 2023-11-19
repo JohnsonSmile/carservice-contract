@@ -17,8 +17,11 @@ describe("Order", function () {
     console.log(`\tuser deployed at ${userAddress}`)
     // 2. 部署order
     const OrderFactory = await ethers.getContractFactory("Order")
-    const order = (await OrderFactory.deploy(await user.getAddress())) as Order
+    const order = (await OrderFactory.deploy()) as Order
     await order.waitForDeployment()
+    // initialize
+    const initTx = await order.Initialize(userAddress)
+    await initTx.wait()
     const orderAddress = await order.getAddress()
     console.log(`\torder deployed at ${orderAddress}`)
 
@@ -81,11 +84,7 @@ describe("Order", function () {
         )
 
         // 2. 创建用户，并创建订单
-        const createTx = await user.CreateUser({
-          id: 1,
-          phone: 18888888888,
-          score: 0,
-        })
+        const createTx = await user.CreateUser(1, 18888888888, 0)
         await createTx.wait()
 
         await expect(

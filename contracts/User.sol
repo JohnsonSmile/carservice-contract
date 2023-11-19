@@ -42,24 +42,27 @@ contract User is AccessControl {
     }
 
     /// 创建用户
-    /// @param _user 用户信息
-    function CreateUser(UserEntity memory _user) onlyRole(MANAGER) external {
+    /// @param _id 用户的id
+    /// @param _phone 用户的手机
+    /// @param _score 用户的积分
+    function CreateUser(uint256 _id, uint256 _phone, uint256 _score) onlyRole(MANAGER) external {
         // 需要输入的_user的信息是正确的, 用户id和phone必须不能为0
-        if (_user.id == 0 || _user.phone == 0) {
+        if (_id == 0 || _phone == 0) {
             revert Error_UserInfoParamsInvalid();
         }
 
         // 需要当前用户没有创建,这里使用自定义error来节省gas费
         // 这里就不考虑phone的映射关系和唯一性了，也可以再添加一个映射
-        if (userInfo[_user.id].id > 0) {
+        if (userInfo[_id].id > 0) {
             revert Error_UserAlreadyExists();
         }
 
+        UserEntity memory _user = UserEntity(_id, _phone, _score);
         // 添加用户信息
-        userInfo[_user.id] = _user;
+        userInfo[_id] = _user;
         
         // 发送消息到网络，即写入日志
-        emit UserCreated(_user.id, _user);
+        emit UserCreated(_id, _user);
     }
 
     /// 更新用户信息

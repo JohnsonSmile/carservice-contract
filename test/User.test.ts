@@ -131,11 +131,7 @@ describe("User", function () {
         const { user, manager } = await loadFixture(deployUserFixture)
 
         // create user successfully with owner
-        const createTx1 = await user.CreateUser({
-          id: 1,
-          phone: 18999999999,
-          score: 0,
-        })
+        const createTx1 = await user.CreateUser(1, 18999999999, 0)
         await createTx1.wait()
 
         const user1 = await user.GetUser(1)
@@ -145,11 +141,9 @@ describe("User", function () {
         expect(user1.score).to.be.eq(0)
 
         // create user successfully with manager
-        const createTx2 = await user.connect(manager).CreateUser({
-          id: 2,
-          phone: 18999999990,
-          score: 0,
-        })
+        const createTx2 = await user
+          .connect(manager)
+          .CreateUser(2, 18999999990, 0)
         await createTx2.wait()
         const user2 = await user.GetUser(2)
         console.log(`\tuser2: ${user2}`)
@@ -163,11 +157,7 @@ describe("User", function () {
 
         // create user failed with player
         await expect(
-          user.connect(player).CreateUser({
-            id: 1,
-            phone: 18999999999,
-            score: 0,
-          })
+          user.connect(player).CreateUser(1, 18999999999, 0)
         ).to.be.revertedWith(
           "AccessControl: account 0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc is missing role 0xaf290d8680820aad922855f39b306097b20e28774d6c1ad35a20325630c3a02c"
         )
@@ -177,21 +167,13 @@ describe("User", function () {
         const { user } = await loadFixture(deployUserFixture)
 
         // create user failed with owner
-        const createTx = await user.CreateUser({
-          id: 1,
-          phone: 18999999999,
-          score: 0,
-        })
+        const createTx = await user.CreateUser(1, 18999999999, 0)
 
         await createTx.wait()
 
         // reverted with custom error
         await expect(
-          user.CreateUser({
-            id: 1,
-            phone: 18999999999,
-            score: 0,
-          })
+          user.CreateUser(1, 18999999999, 0)
         ).to.be.revertedWithCustomError(
           {
             interface: user.interface,
@@ -205,11 +187,7 @@ describe("User", function () {
 
         // reverted with custom error
         await expect(
-          user.CreateUser({
-            id: 0,
-            phone: 18999999999,
-            score: 0,
-          })
+          user.CreateUser(0, 18999999999, 0)
         ).to.be.revertedWithCustomError(
           {
             interface: user.interface,
@@ -222,13 +200,10 @@ describe("User", function () {
         const { user } = await loadFixture(deployUserFixture)
 
         // create user successfully with event emit
-        await expect(
-          user.CreateUser({
-            id: 1,
-            phone: 18999999999,
-            score: 0,
-          })
-        ).to.be.emit(user, "UserCreated")
+        await expect(user.CreateUser(1, 18999999999, 0)).to.be.emit(
+          user,
+          "UserCreated"
+        )
       })
     })
 
@@ -237,11 +212,7 @@ describe("User", function () {
         const { user, manager } = await loadFixture(deployUserFixture)
 
         // create user successfully with owner
-        const createTx1 = await user.CreateUser({
-          id: 1,
-          phone: 18999999999,
-          score: 0,
-        })
+        const createTx1 = await user.CreateUser(1, 18999999999, 0)
         await createTx1.wait()
 
         const user1 = await user.GetUser(1)
@@ -263,11 +234,7 @@ describe("User", function () {
         const { user, player } = await loadFixture(deployUserFixture)
 
         // create user with owner
-        const userTx = await user.CreateUser({
-          id: 1,
-          phone: 18999999999,
-          score: 0,
-        })
+        const userTx = await user.CreateUser(1, 18999999999, 0)
         await userTx.wait()
 
         // update user failed with player
@@ -296,11 +263,7 @@ describe("User", function () {
         const { user } = await loadFixture(deployUserFixture)
 
         // create user successfully
-        const createTx = await user.CreateUser({
-          id: 1,
-          phone: 18999999999,
-          score: 0,
-        })
+        const createTx = await user.CreateUser(1, 18999999999, 0)
         await createTx.wait()
 
         // update user successfully with event emit
